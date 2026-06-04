@@ -1,0 +1,12 @@
+# Dependencias del proyecto.
+#
+# Se permiten estas librerías para E/S de imagen, conversión a gris,
+# redimensionado y operaciones de arreglos:
+numpy
+pillow
+scikit-image
+#
+# IMPORTANTE (restricción del enunciado): NO se usa ninguna librería que
+# implemente LBP (p.ej. skimage.feature.local_binary_pattern) ni
+# clasificadores (p.ej. sklearn). El LBP, los histogramas y la clasificación
+# por similitud coseno están implementados a mano en src/.
