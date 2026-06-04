@@ -42,6 +42,15 @@ def main():
     embedding = embedding_desde_ruta(ruta)
     etiqueta, similitudes = clasificar(embedding, vectores_u, umbral=UMBRAL_DESCONOCIDO)
 
+    # --- Vectores comparados ---
+    print("\n=== Vectores comparados ===")
+    print(f"Vector V (imagen evaluada) — longitud {len(embedding)}:")
+    print(f"  {embedding}")
+
+    for persona, u in sorted(vectores_u.items()):
+        print(f"\nVector U ({persona}) — longitud {len(u)}:")
+        print(f"  {u}")
+
     # --- Resultado ---
     print("\n=== Resultado ===")
     print(f"Predicción: {etiqueta}")
