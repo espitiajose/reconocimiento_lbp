@@ -1,9 +1,0 @@
-Coloca aquí las 10 imágenes de la PERSONA 3 (user3).
-
-Requisitos:
-- Rostro ya recortado y aproximadamente centrado.
-- Frontales, con ligeras variaciones de expresión e iluminación.
-- Formatos aceptados: .jpg, .jpeg, .png, .bmp
-
-El programa las convierte a gris y las redimensiona a 120x120 automáticamente.
-Puedes borrar este archivo cuando agregues tus imágenes.

@@ -14,12 +14,24 @@ Uso:
     python3 -m src.evaluate
 """
 
+import os
+
 from . import dataset
-from .model import comparar, construir_vectores_representativos, embedding_desde_ruta
+from .model import (
+    comparar,
+    construir_vectores_representativos,
+    embedding_desde_ruta,
+    embedding_y_lbp_desde_ruta,
+)
+from . import visualize
 
 
-def evaluar(fraccion_train=0.7):
+def evaluar(fraccion_train=0.7, mostrar_graficas=True):
     """Ejecuta la evaluación y muestra los resultados por consola.
+
+    Args:
+        fraccion_train: proporción de imágenes para entrenamiento (default 0.7).
+        mostrar_graficas: si True, abre ventana matplotlib con plano cartesiano.
 
     Returns:
         (accuracy, matriz_confusion, personas) por si se quiere reutilizar.
@@ -44,7 +56,7 @@ def evaluar(fraccion_train=0.7):
     print("=== Detalle de clasificación (conjunto de prueba) ===")
     for persona_real, rutas in test.items():
         for ruta in rutas:
-            embedding = embedding_desde_ruta(ruta)
+            embedding, codigos_lbp = embedding_y_lbp_desde_ruta(ruta)
             similitudes = comparar(embedding, vectores_u)
             predicho = max(similitudes, key=similitudes.get)
 
@@ -55,8 +67,24 @@ def evaluar(fraccion_train=0.7):
                 aciertos += 1
 
             marca = "OK " if ok else "XX "
-            print(f"  {marca} real={persona_real} pred={predicho} "
-                  f"sim={similitudes[predicho]:.4f}")
+            print(
+                f"  {marca} real={persona_real} pred={predicho} "
+                f"sim={similitudes[predicho]:.4f}"
+            )
+
+            # ── Visualización por imagen ──────────────────────────────────
+            label = f"{os.path.basename(ruta)} (real={persona_real})"
+            # visualize.imprimir_histograma_consola(embedding, label=label)
+            visualize.imprimir_similitudes_conseno(similitudes)
+            if mostrar_graficas:
+                visualize.mostrar_ventana_completa(
+                    ruta,
+                    embedding,
+                    vectores_u,
+                    similitudes,
+                    codigos_lbp=codigos_lbp,
+                    label_v=label,
+                )
 
     accuracy = aciertos / total if total else 0.0
     _imprimir_resumen(accuracy, aciertos, total, matriz, personas)
@@ -68,12 +96,12 @@ def _imprimir_resumen(accuracy, aciertos, total, matriz, personas):
     print("\n=== Resultados ===")
     print(f"Accuracy: {accuracy:.4f}  ({aciertos}/{total} aciertos)")
 
-    print("\nMatriz de confusión (filas = real, columnas = predicho):")
-    encabezado = "        " + "".join(f"{p:>8}" for p in personas)
-    print(encabezado)
-    for i, persona in enumerate(personas):
-        fila = "".join(f"{valor:>8}" for valor in matriz[i])
-        print(f"{persona:>8}{fila}")
+    # print("\nMatriz de confusión (filas = real, columnas = predicho):")
+    # encabezado = "        " + "".join(f"{p:>8}" for p in personas)
+    # print(encabezado)
+    # for i, persona in enumerate(personas):
+    #     fila = "".join(f"{valor:>8}" for valor in matriz[i])
+    #     print(f"{persona:>8}{fila}")
 
 
 if __name__ == "__main__":

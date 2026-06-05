@@ -25,13 +25,13 @@ import numpy as np
 # que todas las imágenes generen códigos comparables.
 VECINOS = [
     (-1, -1),  # bit 7  (arriba-izquierda)
-    (-1, 0),   # bit 6  (arriba)
-    (-1, 1),   # bit 5  (arriba-derecha)
-    (0, 1),    # bit 4  (derecha)
-    (1, 1),    # bit 3  (abajo-derecha)
-    (1, 0),    # bit 2  (abajo)
-    (1, -1),   # bit 1  (abajo-izquierda)
-    (0, -1),   # bit 0  (izquierda)
+    (-1, 0),  # bit 6  (arriba)
+    (-1, 1),  # bit 5  (arriba-derecha)
+    (0, 1),  # bit 4  (derecha)
+    (1, 1),  # bit 3  (abajo-derecha)
+    (1, 0),  # bit 2  (abajo)
+    (1, -1),  # bit 1  (abajo-izquierda)
+    (0, -1),  # bit 0  (izquierda)
 ]
 
 

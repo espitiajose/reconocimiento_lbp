@@ -16,6 +16,7 @@ librería de clasificación.
 import numpy as np
 
 from . import features
+from . import lbp as lbp_mod
 from .image_loader import preparar_imagen
 from .similarity import cosine_similarity
 
@@ -30,6 +31,18 @@ ETIQUETA_DESCONOCIDO = "Desconocido"
 def embedding_desde_ruta(ruta):
     """Atajo: ruta de imagen -> embedding LBP (vector de 9216 valores)."""
     return features.extraer_embedding(preparar_imagen(ruta))
+
+
+def embedding_y_lbp_desde_ruta(ruta):
+    """Ruta de imagen -> (embedding, codigos_lbp) sin computar LBP dos veces.
+
+    Returns:
+        (embedding, codigos): embedding ndarray 9216, codigos ndarray 2D uint8.
+    """
+    gris = preparar_imagen(ruta)
+    codigos = lbp_mod.imagen_lbp(gris)
+    embedding = features.extraer_embedding_desde_codigos(codigos)
+    return embedding, codigos
 
 
 def construir_vectores_representativos(rutas_por_persona):
@@ -81,9 +94,9 @@ def clasificar(embedding_v, vectores_u, umbral=UMBRAL_DESCONOCIDO):
     """
     similitudes = comparar(embedding_v, vectores_u)
 
-    # Persona con mayor similitud.
-    mejor_persona = max(similitudes, key=similitudes.get)
-    mejor_valor = similitudes[mejor_persona]
+    # Persona con mayor similitud. Usar items() evita problemas de tipos
+    # porque key recibe directamente el valor (float) en lugar de Optional[float].
+    mejor_persona, mejor_valor = max(similitudes.items(), key=lambda item: item[1])
 
     if mejor_valor < umbral:
         return ETIQUETA_DESCONOCIDO, similitudes

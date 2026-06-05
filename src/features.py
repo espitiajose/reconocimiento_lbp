@@ -48,6 +48,31 @@ def histograma_celda(imagen_codigos, fila0, col0, alto, ancho):
     return conteos
 
 
+def extraer_embedding_desde_codigos(codigos):
+    """Embedding LBP a partir de imagen de códigos ya calculada.
+
+    Args:
+        codigos: numpy.ndarray 2D uint8 producido por lbp.imagen_lbp.
+
+    Returns:
+        numpy.ndarray de longitud 9216.
+    """
+    filas, columnas = codigos.shape
+    alto_celda = filas // NUM_CELDAS_LADO
+    ancho_celda = columnas // NUM_CELDAS_LADO
+
+    histogramas = []
+    for fila_celda in range(NUM_CELDAS_LADO):
+        for col_celda in range(NUM_CELDAS_LADO):
+            fila0 = fila_celda * alto_celda
+            col0 = col_celda * ancho_celda
+            alto = alto_celda if fila_celda < NUM_CELDAS_LADO - 1 else filas - fila0
+            ancho = ancho_celda if col_celda < NUM_CELDAS_LADO - 1 else columnas - col0
+            histogramas.append(histograma_celda(codigos, fila0, col0, alto, ancho))
+
+    return np.concatenate(histogramas)
+
+
 def extraer_embedding(matriz_gris):
     """Calcula el vector descriptor (embedding) de una imagen de grises 120x120.
 
@@ -59,25 +84,4 @@ def extraer_embedding(matriz_gris):
         numpy.ndarray de longitud 9216 (36 histogramas de 256 bins concatenados).
     """
     codigos = lbp.imagen_lbp(matriz_gris)
-    filas, columnas = codigos.shape
-
-    # Tamaño de cada celda. Usamos división entera; con 118x118 y 6 celdas cada
-    # celda mide 19 px y la última absorbe el resto, para no dejar píxeles fuera.
-    alto_celda = filas // NUM_CELDAS_LADO
-    ancho_celda = columnas // NUM_CELDAS_LADO
-
-    histogramas = []
-    for fila_celda in range(NUM_CELDAS_LADO):
-        for col_celda in range(NUM_CELDAS_LADO):
-            fila0 = fila_celda * alto_celda
-            col0 = col_celda * ancho_celda
-
-            # La última celda de cada eje se estira hasta el final para incluir
-            # las filas/columnas sobrantes de la división entera.
-            alto = alto_celda if fila_celda < NUM_CELDAS_LADO - 1 else filas - fila0
-            ancho = ancho_celda if col_celda < NUM_CELDAS_LADO - 1 else columnas - col0
-
-            histogramas.append(histograma_celda(codigos, fila0, col0, alto, ancho))
-
-    # Concatenar los 36 histogramas en un único vector de 9216 valores.
-    return np.concatenate(histogramas)
+    return extraer_embedding_desde_codigos(codigos)

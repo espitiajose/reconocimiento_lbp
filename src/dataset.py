@@ -9,9 +9,11 @@ Estructura esperada en la raíz del proyecto:
 
 "Estratificada por persona" significa que el 70/30 se aplica DENTRO de cada
 persona, para que entrenamiento y prueba tengan a las tres por igual.
+La selección es aleatoria (shuffle) con semilla configurable para reproducibilidad.
 """
 
 import os
+import random
 
 # Carpeta raíz del proyecto = carpeta que contiene a src/ (un nivel arriba de
 # este archivo). Así los scripts funcionan sin importar desde dónde se ejecuten.
@@ -50,24 +52,30 @@ def listar_por_persona(raiz=RAIZ_PROYECTO):
     return rutas_por_persona
 
 
-def split_estratificado(rutas_por_persona, fraccion_train=0.7):
+def split_estratificado(rutas_por_persona, fraccion_train=0.7, semilla=None):
     """Divide las imágenes de cada persona en entrenamiento y prueba.
 
-    El corte se hace por nombre de archivo ya ordenado (determinista): las
-    primeras `fraccion_train` van a entrenamiento y el resto a prueba. Con 10
-    imágenes y 0.7 quedan 7 de entrenamiento y 3 de prueba por persona.
+    La selección es aleatoria (shuffle dentro de cada persona) para que no
+    siempre sean las primeras N fotos las de entrenamiento. Con 10 imágenes y
+    fraccion_train=0.7 quedan 7 de entrenamiento y 3 de prueba por persona,
+    elegidas al azar.
 
     Args:
         rutas_por_persona: dict como el que devuelve listar_por_persona.
         fraccion_train: proporción para entrenamiento (0 a 1).
+        semilla: semilla para random.shuffle (None = aleatoria cada ejecución;
+            un entero fijo da resultados reproducibles).
 
     Returns:
         (train, test): dos dicts {persona: [rutas]}.
     """
+    rng = random.Random(semilla)
     train = {}
     test = {}
     for persona, rutas in rutas_por_persona.items():
-        corte = int(round(len(rutas) * fraccion_train))
-        train[persona] = rutas[:corte]
-        test[persona] = rutas[corte:]
+        mezcladas = list(rutas)
+        rng.shuffle(mezcladas)
+        corte = int(round(len(mezcladas) * fraccion_train))
+        train[persona] = mezcladas[:corte]
+        test[persona] = mezcladas[corte:]
     return train, test
